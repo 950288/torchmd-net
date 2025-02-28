@@ -99,13 +99,13 @@ class LNNP(LightningModule):
         self.data_transform = FloatCastDatasetWrapper(
             dtype_mapping[self.hparams.precision]
         )
-        if self.hparams.remove_ref_energy:
-            self.data_transform = T.Compose(
-                [
-                    EnergyRefRemover(self.model.prior_model[-1].initial_atomref),
-                    self.data_transform,
-                ]
-            )
+        # if self.hparams.remove_ref_energy:
+        #     self.data_transform = T.Compose(
+        #         [
+        #             EnergyRefRemover(self.model.prior_model[-1].initial_atomref),
+        #             self.data_transform,
+        #         ]
+        #     )
 
         if self.hparams.train_loss not in loss_class_mapping:
             raise ValueError(
@@ -267,12 +267,12 @@ class LNNP(LightningModule):
                 s=batch.s if self.hparams.spin else None,
                 extra_args=extra_args,
             )
-        if self.hparams.derivative and "y" not in batch:
-            # "use" both outputs of the model's forward function but discard the first
-            # to only use the negative derivative and avoid 'Expected to have finished reduction
-            # in the prior iteration before starting a new one.', which otherwise get's
-            # thrown because of setting 'find_unused_parameters=False' in the DDPPlugin
-            neg_dy = neg_dy + y.sum() * 0
+        # if self.hparams.derivative and "y" not in batch:
+        #     # "use" both outputs of the model's forward function but discard the first
+        #     # to only use the negative derivative and avoid 'Expected to have finished reduction
+        #     # in the prior iteration before starting a new one.', which otherwise get's
+        #     # thrown because of setting 'find_unused_parameters=False' in the DDPPlugin
+        #     neg_dy = neg_dy + y.sum() * 0
         if "y" in batch and batch.y.ndim == 1:
             batch.y = batch.y.unsqueeze(1)
         for loss_name, loss_fn in loss_fn_list:

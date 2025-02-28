@@ -4,6 +4,8 @@
 
 import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+print(sys.path)
 import yaml
 import argparse
 import logging
@@ -14,7 +16,6 @@ from lightning.pytorch.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
 )
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from torchmdnet.module import LNNP
 from torchmdnet import datasets, priors, models
 from torchmdnet.data import DataModule
@@ -180,7 +181,8 @@ def fix_state_dict(ckpt):
         state_dict = {re.sub(p[0], p[1], k): v for k, v in state_dict.items()}
     return state_dict
 
-# python torchmd-net/torchmdnet/scripts/train.py --conf examples/ET-QM9.yaml --log-dir output/
+# docker run -it --shm-size 24G --rm --gpus all -v "${PWD}:/code" muka bash
+# python torchmdnet/scripts/train2.py --conf examples/ET-QM9.yaml --log-dir output/
 
 def main():
     args = get_args()
@@ -191,6 +193,14 @@ def main():
     data = DataModule(args)
     data.prepare_data()
     data.setup("fit")
+
+    # print(data)
+    # print(data.train_dataloader())
+    # for data in data.train_dataloader():
+    #     print(data.y.mean())
+    #     print(data.y.std())
+    #     break
+    # exit()
 
     prior_models = create_prior_models(vars(args), data.dataset)
     args.prior_args = [p.get_init_args() for p in prior_models]
@@ -250,7 +260,7 @@ def main():
         strategy="auto",
         max_epochs=args.num_epochs,
         accelerator="auto",
-        devices=args.ngpus,
+        # devices=args.ngpus,
         num_nodes=args.num_nodes,
         default_root_dir=args.log_dir,
         callbacks=callbacks,

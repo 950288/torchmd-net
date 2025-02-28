@@ -33,13 +33,13 @@ def create_model(args, prior_model=None, mean=None, std=None):
         nn.Module: An instance of the TorchMD_Net model.
     """
     dtype = dtype_mapping[args["precision"]]
-    if "box_vecs" not in args:
+    if "box_vecs" not in args: # null
         args["box_vecs"] = None
     if "check_errors" not in args:
         args["check_errors"] = True
     if "static_shapes" not in args:
         args["static_shapes"] = False
-    if "vector_cutoff" not in args:
+    if "vector_cutoff" not in args: # true
         args["vector_cutoff"] = False
 
     shared_args = dict(
@@ -91,9 +91,9 @@ def create_model(args, prior_model=None, mean=None, std=None):
         representation_model = TorchMD_ET(
             attn_activation=args["attn_activation"],
             num_heads=args["num_heads"],
-            distance_influence=args["distance_influence"],
-            neighbor_embedding=args["neighbor_embedding"],
-            vector_cutoff=args["vector_cutoff"],
+            distance_influence=args["distance_influence"], # both
+            neighbor_embedding=args["neighbor_embedding"], # true
+            vector_cutoff=args["vector_cutoff"], # true
             **shared_args,
         )
     elif args["model"] == "tensornet":
@@ -110,10 +110,10 @@ def create_model(args, prior_model=None, mean=None, std=None):
         raise ValueError(f'Unknown architecture: {args["model"]}')
 
     # atom filter
-    if not args["derivative"] and args["atom_filter"] > -1:
-        representation_model = AtomFilter(representation_model, args["atom_filter"])
-    elif args["atom_filter"] > -1:
-        raise ValueError("Derivative and atom filter can't be used together")
+    # if not args["derivative"] and args["atom_filter"] > -1:
+    #     representation_model = AtomFilter(representation_model, args["atom_filter"])
+    # elif args["atom_filter"] > -1:
+    #     raise ValueError("Derivative and atom filter can't be used together")
 
     # prior model
     if args["prior_model"] and prior_model is None:
@@ -453,6 +453,15 @@ class TorchMD_Net(nn.Module):
         Returns:
             Tuple[Tensor, Optional[Tensor]]: The output of the model and the derivative of the output with respect to the positions if derivative is True, None otherwise.
         """
+        
+        # print('z', z)
+        # print('pos', pos)
+        # print('batch', batch)
+        # print('box', box)
+        # print('q', q)
+        # print('s', s)
+        # print('extra_args', extra_args)
+
         assert z.dim() == 1 and z.dtype == torch.long
         batch = torch.zeros_like(z) if batch is None else batch
 

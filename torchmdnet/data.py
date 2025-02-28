@@ -11,7 +11,8 @@ from lightning import LightningDataModule
 from lightning_utilities.core.rank_zero import rank_zero_warn
 from torchmdnet import datasets
 from torchmdnet.utils import make_splits, MissingEnergyException
-from torchmdnet.models.utils import scatter
+# from torchmdnet.models.utils import scatter
+from torch_geometric.utils import scatter
 import warnings
 
 

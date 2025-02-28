@@ -141,3 +141,6 @@ docs/source/generated
 # Extra
 
 *~
+data/*
+data/
+output/
